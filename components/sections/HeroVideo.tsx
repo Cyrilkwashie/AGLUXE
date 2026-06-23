@@ -1,52 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useCatalog } from '@/context/CatalogContext';
+import { motion } from 'framer-motion';
+import { HERO_VIDEO_SRC } from '@/lib/site-config';
 import { premiumEase } from '@/lib/motion';
 
 export default function HeroVideo() {
-  const { heroVideos, loading } = useCatalog();
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  useEffect(() => {
-    if (heroVideos.length === 0) return;
-    const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % heroVideos.length);
-    }, 6000);
-    return () => clearInterval(interval);
-  }, [heroVideos.length]);
-
-  if (loading || heroVideos.length === 0) {
-    return <section className="h-screen bg-ag-black" aria-label="Hero video showcase" />;
-  }
-
   return (
     <section
       aria-label="Hero video showcase"
       className="relative h-screen w-full overflow-hidden"
     >
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activeIndex}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1.5, ease: 'easeInOut' }}
-          className="absolute inset-0"
-        >
-          <video
-            src={heroVideos[activeIndex].src}
-            poster={heroVideos[activeIndex].poster}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            className="w-full h-full object-cover"
-          />
-        </motion.div>
-      </AnimatePresence>
+      <video
+        src={HERO_VIDEO_SRC}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        className="absolute inset-0 w-full h-full object-cover"
+      />
 
       <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-black/50" />
 
@@ -99,19 +71,6 @@ export default function HeroVideo() {
             Shop Now
           </a>
         </motion.div>
-      </div>
-
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
-        {heroVideos.map((_, i) => (
-          <button
-            key={i}
-            aria-label={`Show video ${i + 1}`}
-            onClick={() => setActiveIndex(i)}
-            className={`h-px transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-ag-gold ${
-              i === activeIndex ? 'w-12 bg-ag-gold' : 'w-4 bg-white/40'
-            }`}
-          />
-        ))}
       </div>
 
       <motion.div

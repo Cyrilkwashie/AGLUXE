@@ -3,11 +3,11 @@
 import { useEffect, useState } from 'react';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader, { adminButtonPrimary, adminInputClass, adminLabelClass } from '@/components/admin/AdminHeader';
-import type { HeroVideo, InstagramPost } from '@/lib/types';
+import MediaUpload from '@/components/admin/MediaUpload';
+import type { InstagramPost } from '@/lib/types';
 
 export default function SettingsAdminPage() {
   const [marqueeItems, setMarqueeItems] = useState('');
-  const [heroVideos, setHeroVideos] = useState<HeroVideo[]>([]);
   const [instagramPosts, setInstagramPosts] = useState<InstagramPost[]>([]);
   const [saved, setSaved] = useState(false);
 
@@ -16,7 +16,6 @@ export default function SettingsAdminPage() {
       .then((r) => r.json())
       .then((data) => {
         setMarqueeItems(data.marqueeItems.join('\n'));
-        setHeroVideos(data.heroVideos);
         setInstagramPosts(data.instagramPosts);
       });
   }, []);
@@ -27,7 +26,6 @@ export default function SettingsAdminPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         marqueeItems: marqueeItems.split('\n').filter(Boolean),
-        heroVideos,
         instagramPosts,
       }),
     });
@@ -43,7 +41,7 @@ export default function SettingsAdminPage() {
       <main className="flex-1 p-8 md:p-12 max-w-3xl">
         <AdminHeader
           title="Site Settings"
-          description="Edit homepage marquee text, hero videos, and Instagram gallery images."
+          description="Edit homepage marquee text and Instagram gallery images."
         />
 
         <div className="space-y-10">
@@ -57,53 +55,20 @@ export default function SettingsAdminPage() {
           </section>
 
           <section>
-            <h2 className="font-display text-xl mb-4">Hero Videos</h2>
-            {heroVideos.map((v, i) => (
-              <div key={i} className="border border-ag-border p-4 mb-4 space-y-3">
-                <div>
-                  <label className={adminLabelClass}>Video URL</label>
-                  <input
-                    className={adminInputClass}
-                    value={v.src}
-                    onChange={(e) => {
-                      const next = [...heroVideos];
-                      next[i] = { ...next[i], src: e.target.value };
-                      setHeroVideos(next);
-                    }}
-                  />
-                </div>
-                <div>
-                  <label className={adminLabelClass}>Poster Image URL</label>
-                  <input
-                    className={adminInputClass}
-                    value={v.poster}
-                    onChange={(e) => {
-                      const next = [...heroVideos];
-                      next[i] = { ...next[i], poster: e.target.value };
-                      setHeroVideos(next);
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
-          </section>
-
-          <section>
             <h2 className="font-display text-xl mb-4">Instagram Gallery</h2>
             {instagramPosts.map((post, i) => (
               <div key={post.id} className="border border-ag-border p-4 mb-4 space-y-3">
-                <div>
-                  <label className={adminLabelClass}>Image URL</label>
-                  <input
-                    className={adminInputClass}
-                    value={post.image}
-                    onChange={(e) => {
-                      const next = [...instagramPosts];
-                      next[i] = { ...next[i], image: e.target.value };
-                      setInstagramPosts(next);
-                    }}
-                  />
-                </div>
+                <MediaUpload
+                  label="Image"
+                  value={post.image}
+                  onChange={(url) => {
+                    const next = [...instagramPosts];
+                    next[i] = { ...next[i], image: url };
+                    setInstagramPosts(next);
+                  }}
+                  folder="instagram"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                />
                 <div>
                   <label className={adminLabelClass}>Alt Text</label>
                   <input

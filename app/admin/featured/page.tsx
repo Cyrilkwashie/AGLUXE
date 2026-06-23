@@ -8,6 +8,7 @@ import AdminHeader, {
   adminInputClass,
   adminLabelClass,
 } from '@/components/admin/AdminHeader';
+import MediaUpload from '@/components/admin/MediaUpload';
 import type { FeaturedCollectionItem } from '@/lib/types';
 import { formatPrice } from '@/lib/format';
 
@@ -96,10 +97,13 @@ export default function FeaturedAdminPage() {
               <label className={adminLabelClass}>Description</label>
               <textarea className={`${adminInputClass} min-h-[80px]`} value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} />
             </div>
-            <div>
-              <label className={adminLabelClass}>Image URL</label>
-              <input className={adminInputClass} value={editing.image} onChange={(e) => setEditing({ ...editing, image: e.target.value })} />
-            </div>
+            <MediaUpload
+              label="Image"
+              value={editing.image}
+              onChange={(url) => setEditing({ ...editing, image: url })}
+              folder="featured"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+            />
             <div>
               <label className={adminLabelClass}>Linked Product ID (optional)</label>
               <input className={adminInputClass} value={editing.productId ?? ''} onChange={(e) => setEditing({ ...editing, productId: e.target.value || undefined })} placeholder="e.g. 1" />

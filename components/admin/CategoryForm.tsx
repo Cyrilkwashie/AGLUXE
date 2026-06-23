@@ -8,6 +8,7 @@ import {
   adminInputClass,
   adminLabelClass,
 } from './AdminHeader';
+import MediaUpload from './MediaUpload';
 
 type Props = {
   initial?: Category;
@@ -76,20 +77,15 @@ export default function CategoryForm({
         />
       </div>
 
-      <div>
-        <label className={adminLabelClass}>Image URL *</label>
-        <input
-          className={adminInputClass}
-          value={image}
-          onChange={(e) => setImage(e.target.value)}
-          required
-          placeholder="https://images.unsplash.com/..."
-        />
-        {image && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={image} alt="Preview" className="mt-3 w-32 h-40 object-cover border border-ag-border" />
-        )}
-      </div>
+      <MediaUpload
+        label="Category Image *"
+        value={image}
+        onChange={setImage}
+        folder="categories"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        required
+        hint="Upload from device or paste a URL"
+      />
 
       {error && <p className="font-sans text-sm text-red-600">{error}</p>}
 

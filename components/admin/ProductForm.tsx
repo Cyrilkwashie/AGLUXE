@@ -8,6 +8,7 @@ import {
   adminInputClass,
   adminLabelClass,
 } from './AdminHeader';
+import MediaUpload from './MediaUpload';
 
 type Props = {
   categories: Category[];
@@ -110,15 +111,25 @@ export default function ProductForm({
           <input className={adminInputClass} type="number" min="0" step="1" value={originalPrice} onChange={(e) => setOriginalPrice(e.target.value)} placeholder="For sale items" />
         </div>
 
-        <div>
-          <label className={adminLabelClass}>Primary Image URL *</label>
-          <input className={adminInputClass} value={image} onChange={(e) => setImage(e.target.value)} required />
-        </div>
+        <MediaUpload
+          label="Primary Image *"
+          value={image}
+          onChange={setImage}
+          folder="products"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          required
+          hint="JPG, PNG, or WebP up to 50MB"
+        />
 
-        <div>
-          <label className={adminLabelClass}>Hover Image URL</label>
-          <input className={adminInputClass} value={hoverImage} onChange={(e) => setHoverImage(e.target.value)} placeholder="Defaults to primary image" />
-        </div>
+        <MediaUpload
+          label="Hover Image"
+          value={hoverImage}
+          onChange={setHoverImage}
+          folder="products"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          placeholder="Defaults to primary image"
+          hint="Optional second product photo"
+        />
       </div>
 
       <div>
@@ -141,17 +152,6 @@ export default function ProductForm({
           Mark as Bestseller
         </label>
       </div>
-
-      {image && (
-        <div className="flex gap-4">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={image} alt="Primary" className="w-24 h-32 object-cover border border-ag-border" />
-          {hoverImage && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={hoverImage} alt="Hover" className="w-24 h-32 object-cover border border-ag-border" />
-          )}
-        </div>
-      )}
 
       {error && <p className="font-sans text-sm text-red-600">{error}</p>}
 
