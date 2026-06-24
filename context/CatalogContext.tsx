@@ -24,10 +24,20 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
-    const res = await fetch('/api/catalog', { cache: 'no-store' });
-    const data = (await res.json()) as PublicCatalog;
-    setCatalog(data);
-    setLoading(false);
+    try {
+      const res = await fetch('/api/catalog', { cache: 'no-store' });
+      if (!res.ok) {
+        console.error('Catalog fetch failed:', res.status);
+        setLoading(false);
+        return;
+      }
+      const data = (await res.json()) as PublicCatalog;
+      setCatalog(data);
+    } catch (error) {
+      console.error('Catalog fetch error:', error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {

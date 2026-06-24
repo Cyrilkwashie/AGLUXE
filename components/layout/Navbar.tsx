@@ -5,16 +5,20 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ShoppingBag, Menu, X } from 'lucide-react';
-import { useCatalog } from '@/context/CatalogContext';
 import { useCart } from '@/context/CartContext';
+import { mainNavLinks } from '@/lib/navigation';
 import { premiumEase } from '@/lib/motion';
 
 const linkClass =
   'relative font-sans text-xs tracking-widest uppercase transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-px after:bg-ag-gold hover:after:w-full after:transition-all after:duration-300';
 
+function isActive(pathname: string, href: string) {
+  if (href === '/shop') return pathname === '/shop' || pathname.startsWith('/shop/');
+  return pathname === href;
+}
+
 export default function Navbar() {
   const pathname = usePathname();
-  const { categories } = useCatalog();
   const { totalItems, openCart } = useCart();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -36,14 +40,6 @@ export default function Navbar() {
     };
   }, [mobileOpen]);
 
-  const navLinks = [
-    ...categories.map((c) => ({
-      label: c.name,
-      href: `/shop?category=${c.slug}`,
-    })),
-    { label: 'About', href: '#brand-story' },
-  ];
-
   const textColor = solid ? 'text-ag-charcoal' : 'text-white';
   const iconColor = solid ? 'text-ag-charcoal' : 'text-white';
 
@@ -64,15 +60,20 @@ export default function Navbar() {
           </Link>
 
           <nav className="hidden lg:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className={`${linkClass} ${textColor} hover:text-ag-gold`}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {mainNavLinks.map((link) => {
+              const active = isActive(pathname, link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`${linkClass} ${textColor} hover:text-ag-gold ${
+                    active ? 'text-ag-gold after:w-full' : ''
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="flex items-center gap-4 md:gap-6">
@@ -123,9 +124,9 @@ export default function Navbar() {
             </button>
 
             <nav className="flex flex-col items-center gap-8">
-              {navLinks.map((link, i) => (
+              {mainNavLinks.map((link, i) => (
                 <motion.div
-                  key={link.label}
+                  key={link.href}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 + i * 0.08, duration: 0.5, ease: premiumEase }}

@@ -5,14 +5,15 @@ import { InstagramIcon } from '@/components/ui/InstagramIcon';
 import { useCatalog } from '@/context/CatalogContext';
 
 const aboutLinks = [
-  { label: 'Our Story', href: '#brand-story' },
-  { label: 'Quality', href: '#quality' },
-  { label: 'Sustainability', href: '#' },
-  { label: 'Press', href: '#' },
-  { label: 'Careers', href: '#' },
+  { label: 'Our Story', href: '/about' },
+  { label: 'Quality', href: '/about#quality' },
+  { label: 'Sustainability', href: '/about' },
+  { label: 'Press', href: '/contact' },
+  { label: 'Careers', href: '/contact' },
 ];
 
 const contactLinks = [
+  { label: 'Contact Us', href: '/contact' },
   { label: 'hello@agluxe.com', href: 'mailto:hello@agluxe.com' },
   { label: '+1 (800) 000 0000', href: 'tel:+18000000000' },
   { label: 'Instagram', href: 'https://instagram.com' },
