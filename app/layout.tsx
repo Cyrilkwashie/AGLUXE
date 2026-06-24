@@ -1,6 +1,14 @@
 import type { Metadata } from 'next';
 import { Cormorant_Garamond, DM_Sans } from 'next/font/google';
 import Providers from '@/components/providers/Providers';
+import {
+  getSiteUrl,
+  SITE_DESCRIPTION,
+  SITE_KEYWORDS,
+  SITE_NAME,
+  SITE_TAGLINE,
+  SITE_TITLE,
+} from '@/lib/site-config';
 import './globals.css';
 
 const cormorant = Cormorant_Garamond({
@@ -18,15 +26,31 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'AG LUXE — Fine Jewelry for the Timeless You',
-  description:
-    'Discover fine jewelry — rings, necklaces, bracelets, and earrings in 18K gold and certified diamonds.',
+  metadataBase: new URL(getSiteUrl()),
+  title: {
+    default: SITE_TITLE,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  keywords: SITE_KEYWORDS,
+  applicationName: SITE_NAME,
+  authors: [{ name: SITE_NAME }],
+  creator: SITE_NAME,
   openGraph: {
-    title: 'AG LUXE Fine Jewelry',
-    description: 'Timeless. Refined. Yours.',
-    images: [
-      'https://images.unsplash.com/photo-1603561596112-0a132b757442?auto=format&fit=crop&w=1200&q=80',
-    ],
+    type: 'website',
+    locale: 'en_US',
+    siteName: SITE_NAME,
+    title: SITE_TITLE,
+    description: SITE_TAGLINE,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_TITLE,
+    description: SITE_TAGLINE,
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
