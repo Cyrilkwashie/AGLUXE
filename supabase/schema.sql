@@ -23,7 +23,8 @@ create table if not exists products (
   hover_image text not null default '',
   description text not null default '',
   is_new boolean not null default false,
-  is_bestseller boolean not null default false
+  is_bestseller boolean not null default false,
+  media jsonb not null default '[]'::jsonb
 );
 
 create table if not exists featured_collection (

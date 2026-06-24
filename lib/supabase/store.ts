@@ -7,6 +7,7 @@ import type {
   Store,
   Testimonial,
 } from '@/lib/types';
+import { normalizeProduct } from '@/lib/product-media';
 import { getSupabaseAdmin } from './server';
 
 type CategoryRow = {
@@ -29,6 +30,12 @@ type ProductRow = {
   description: string;
   is_new: boolean;
   is_bestseller: boolean;
+  media: ProductMediaRow[] | null;
+};
+
+type ProductMediaRow = {
+  url: string;
+  type: 'image' | 'video';
 };
 
 type FeaturedRow = {
@@ -72,19 +79,20 @@ function mapCategory(row: CategoryRow): Category {
 }
 
 function mapProduct(row: ProductRow): Product {
-  return {
+  return normalizeProduct({
     id: row.id,
     name: row.name,
     price: Number(row.price),
     originalPrice: row.original_price === null ? null : Number(row.original_price),
     category: row.category,
     material: row.material,
+    media: (row.media ?? []) as ProductMediaRow[],
     image: row.image,
     hoverImage: row.hover_image,
     description: row.description,
     isNew: row.is_new,
     isBestseller: row.is_bestseller,
-  };
+  });
 }
 
 function mapFeatured(row: FeaturedRow): FeaturedCollectionItem {
@@ -121,18 +129,21 @@ function toCategoryRow(category: Category): CategoryRow {
 }
 
 function toProductRow(product: Product): ProductRow {
+  const normalized = normalizeProduct(product);
+
   return {
-    id: product.id,
-    name: product.name,
-    price: product.price,
-    original_price: product.originalPrice,
-    category: product.category,
-    material: product.material,
-    image: product.image,
-    hover_image: product.hoverImage,
-    description: product.description,
-    is_new: product.isNew,
-    is_bestseller: product.isBestseller,
+    id: normalized.id,
+    name: normalized.name,
+    price: normalized.price,
+    original_price: normalized.originalPrice,
+    category: normalized.category,
+    material: normalized.material,
+    image: normalized.image,
+    hover_image: normalized.hoverImage,
+    description: normalized.description,
+    is_new: normalized.isNew,
+    is_bestseller: normalized.isBestseller,
+    media: normalized.media,
   };
 }
 

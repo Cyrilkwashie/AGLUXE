@@ -6,6 +6,11 @@ export type Category = {
   image: string;
 };
 
+export type ProductMedia = {
+  url: string;
+  type: 'image' | 'video';
+};
+
 export type Product = {
   id: string;
   name: string;
@@ -13,6 +18,7 @@ export type Product = {
   originalPrice: number | null;
   category: string;
   material: string;
+  media: ProductMedia[];
   image: string;
   hoverImage: string;
   description: string;

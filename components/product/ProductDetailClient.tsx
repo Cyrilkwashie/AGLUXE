@@ -7,6 +7,7 @@ import { useCart } from '@/context/CartContext';
 import { useCatalog } from '@/context/CatalogContext';
 import { formatPrice } from '@/lib/format';
 import { getProductDescription, getProductDetails } from '@/lib/product-utils';
+import { getProductMedia, isVideoMedia } from '@/lib/product-media';
 import type { Product } from '@/lib/types';
 import { ProductCard } from '@/components/ui/ProductCard';
 import { Button } from '@/components/ui/Button';
@@ -18,7 +19,8 @@ type Props = {
 export default function ProductDetailClient({ product }: Props) {
   const { addItem } = useCart();
   const { products, getCategoryName } = useCatalog();
-  const [activeImage, setActiveImage] = useState<'primary' | 'hover'>('primary');
+  const media = getProductMedia(product);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
 
@@ -27,6 +29,8 @@ export default function ProductDetailClient({ product }: Props) {
   const related = products
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
+
+  const activeMedia = media[activeIndex] ?? media[0];
 
   const handleAddToCart = () => {
     addItem(product.id, quantity);
@@ -53,30 +57,25 @@ export default function ProductDetailClient({ product }: Props) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
         <div>
-          <div
-            className="relative aspect-[3/4] bg-ag-cream overflow-hidden mb-4 cursor-pointer"
-            onMouseEnter={() => setActiveImage('hover')}
-            onMouseLeave={() => setActiveImage('primary')}
-          >
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              className={`object-cover transition-opacity duration-500 ${
-                activeImage === 'primary' ? 'opacity-100' : 'opacity-0'
-              }`}
-            />
-            <Image
-              src={product.hoverImage}
-              alt={`${product.name} alternate view`}
-              fill
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              className={`object-cover transition-opacity duration-500 ${
-                activeImage === 'hover' ? 'opacity-100' : 'opacity-0'
-              }`}
-            />
+          <div className="relative aspect-[3/4] bg-ag-cream overflow-hidden mb-4">
+            {activeMedia && isVideoMedia(activeMedia) ? (
+              <video
+                key={activeMedia.url}
+                src={activeMedia.url}
+                controls
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            ) : activeMedia ? (
+              <Image
+                src={activeMedia.url}
+                alt={product.name}
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover"
+              />
+            ) : null}
             {product.isNew && (
               <span className="absolute top-6 left-6 bg-ag-gold text-white text-[10px] tracking-[0.3em] uppercase px-3 py-1.5 font-sans">
                 New
@@ -84,23 +83,26 @@ export default function ProductDetailClient({ product }: Props) {
             )}
           </div>
 
-          <div className="flex gap-3">
-            {[product.image, product.hoverImage].map((src, i) => (
-              <button
-                key={i}
-                onClick={() => setActiveImage(i === 0 ? 'primary' : 'hover')}
-                className={`relative w-20 aspect-[3/4] overflow-hidden border-2 transition-colors ${
-                  (i === 0 && activeImage === 'primary') ||
-                  (i === 1 && activeImage === 'hover')
-                    ? 'border-ag-gold'
-                    : 'border-transparent'
-                }`}
-                aria-label={`View image ${i + 1}`}
-              >
-                <Image src={src} alt="" fill sizes="80px" className="object-cover" />
-              </button>
-            ))}
-          </div>
+          {media.length > 1 && (
+            <div className="flex gap-3 overflow-x-auto pb-2">
+              {media.map((item, index) => (
+                <button
+                  key={`${item.url}-${index}`}
+                  onClick={() => setActiveIndex(index)}
+                  className={`relative shrink-0 w-20 aspect-[3/4] overflow-hidden border-2 transition-colors ${
+                    activeIndex === index ? 'border-ag-gold' : 'border-transparent'
+                  }`}
+                  aria-label={`View media ${index + 1}`}
+                >
+                  {isVideoMedia(item) ? (
+                    <video src={item.url} muted playsInline className="w-full h-full object-cover" />
+                  ) : (
+                    <Image src={item.url} alt="" fill sizes="80px" className="object-cover" />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="lg:py-8">

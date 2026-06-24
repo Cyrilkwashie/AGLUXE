@@ -16,7 +16,29 @@ const supabase = createClient(url, serviceRoleKey, {
 
 const storePath = path.join(process.cwd(), 'data', 'store.json');
 
+function detectMediaType(url) {
+  return /\.(mp4|webm|mov)(\?|$)/i.test(url) ? 'video' : 'image';
+}
+
+function buildMedia(product) {
+  if (product.media?.length) {
+    return product.media.map((item) => ({
+      url: item.url,
+      type: item.type ?? detectMediaType(item.url),
+    }));
+  }
+
+  const media = [];
+  if (product.image) media.push({ url: product.image, type: detectMediaType(product.image) });
+  if (product.hoverImage && product.hoverImage !== product.image) {
+    media.push({ url: product.hoverImage, type: detectMediaType(product.hoverImage) });
+  }
+  return media;
+}
+
 function mapProduct(product) {
+  const media = buildMedia(product);
+
   return {
     id: product.id,
     name: product.name,
@@ -29,6 +51,7 @@ function mapProduct(product) {
     description: product.description,
     is_new: product.isNew,
     is_bestseller: product.isBestseller,
+    media,
   };
 }
 

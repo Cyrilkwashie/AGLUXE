@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { getPrimaryImageUrl } from '@/lib/product-media';
 import { getProductById } from '@/lib/products';
 import ProductDetailClient from '@/components/product/ProductDetailClient';
 
@@ -19,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: `${product.name} in ${product.material}. Fine jewelry by AG LUXE.`,
     openGraph: {
       title: `${product.name} — AG LUXE`,
-      images: [product.image],
+      images: [getPrimaryImageUrl(product)],
     },
   };
 }

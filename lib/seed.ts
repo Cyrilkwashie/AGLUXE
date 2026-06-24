@@ -1,10 +1,11 @@
 import type { Store } from './types';
+import { normalizeProduct } from './product-media';
 
 const img = (id: string, w: number) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`;
 
 export function createSeedStore(): Store {
-  return {
+  const store: Store = {
     categories: [
       {
         id: 'cat-rings',
@@ -49,6 +50,7 @@ export function createSeedStore(): Store {
           'A ring that captures morning light — set with three brilliant-cut diamonds in a delicate pavé band. Designed for everyday elegance with a luminous finish that catches every glance.',
         isNew: true,
         isBestseller: false,
+        media: [],
       },
       {
         id: '2',
@@ -63,6 +65,7 @@ export function createSeedStore(): Store {
           'An ethereal crescent pendant suspended on a whisper-thin chain — a celestial emblem for everyday elegance. Finished in 18K white gold with a satin-polished surface.',
         isNew: false,
         isBestseller: true,
+        media: [],
       },
       {
         id: '3',
@@ -77,6 +80,7 @@ export function createSeedStore(): Store {
           'A fluid cascade of interlocking gold links, each segment polished to mirror brilliance. Set with pavé diamonds that catch light with every movement of the wrist.',
         isNew: true,
         isBestseller: false,
+        media: [],
       },
       {
         id: '4',
@@ -91,6 +95,7 @@ export function createSeedStore(): Store {
           'Sculptural arcs in warm rose gold, lightweight yet striking. The curved silhouette frames the face with understated drama — perfect from day to evening.',
         isNew: false,
         isBestseller: true,
+        media: [],
       },
       {
         id: '5',
@@ -105,6 +110,7 @@ export function createSeedStore(): Store {
           'A bold band in platinum featuring a deep blue sapphire center stone. The channel-set side stones create a horizon of light around the vivid centerpiece.',
         isNew: false,
         isBestseller: false,
+        media: [],
       },
       {
         id: '6',
@@ -119,6 +125,7 @@ export function createSeedStore(): Store {
           'A cascade of carefully selected diamonds that drapes like silk — each stone chosen for its fire and clarity. A statement piece for moments that matter.',
         isNew: true,
         isBestseller: false,
+        media: [],
       },
     ],
     featuredCollection: [
@@ -242,5 +249,10 @@ export function createSeedStore(): Store {
         poster: img('photo-1599643478518-a784e5dc4c8f', 1920),
       },
     ],
+  };
+
+  return {
+    ...store,
+    products: store.products.map((product) => normalizeProduct(product)),
   };
 }

@@ -3,6 +3,7 @@ import path from 'path';
 import { createSeedStore } from './seed';
 import { isSupabaseConfigured } from './supabase/server';
 import { getStoreFromSupabase, saveStoreToSupabase } from './supabase/store';
+import { normalizeProduct } from './product-media';
 import type { CategoryWithCount, PublicCatalog, Store } from './types';
 
 const STORE_PATH = path.join(process.cwd(), 'data', 'store.json');
@@ -10,7 +11,11 @@ const STORE_PATH = path.join(process.cwd(), 'data', 'store.json');
 async function getStoreFromFile(): Promise<Store> {
   try {
     const raw = await fs.readFile(STORE_PATH, 'utf-8');
-    return JSON.parse(raw) as Store;
+    const store = JSON.parse(raw) as Store;
+    return {
+      ...store,
+      products: store.products.map((product) => normalizeProduct(product)),
+    };
   } catch {
     const seeded = createSeedStore();
     await saveStoreToFile(seeded);

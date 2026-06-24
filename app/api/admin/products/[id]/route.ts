@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, jsonError, parseBody } from '@/lib/admin-api';
+import { normalizeProduct } from '@/lib/product-media';
 import { getStore, saveStore } from '@/lib/store';
 import type { Product } from '@/lib/types';
 
@@ -31,24 +32,33 @@ export async function PUT(request: NextRequest, { params }: Params) {
     return jsonError('Category does not exist');
   }
 
-  const updated: Product = {
-    ...current,
-    name: body.name?.trim() ?? current.name,
-    price: typeof body.price === 'number' ? body.price : current.price,
-    originalPrice: body.originalPrice !== undefined ? body.originalPrice : current.originalPrice,
-    category: body.category?.trim() ?? current.category,
-    material: body.material?.trim() ?? current.material,
-    image: body.image?.trim() ?? current.image,
-    hoverImage: body.hoverImage?.trim() ?? current.hoverImage,
-    description: body.description?.trim() ?? current.description,
-    isNew: body.isNew !== undefined ? Boolean(body.isNew) : current.isNew,
-    isBestseller:
-      body.isBestseller !== undefined ? Boolean(body.isBestseller) : current.isBestseller,
-  };
+  try {
+    const updated = normalizeProduct({
+      ...current,
+      name: body.name?.trim() ?? current.name,
+      price: typeof body.price === 'number' ? body.price : current.price,
+      originalPrice: body.originalPrice !== undefined ? body.originalPrice : current.originalPrice,
+      category: body.category?.trim() ?? current.category,
+      material: body.material?.trim() ?? current.material,
+      media: body.media ?? current.media,
+      image: body.image?.trim() ?? current.image,
+      hoverImage: body.hoverImage?.trim() ?? current.hoverImage,
+      description: body.description?.trim() ?? current.description,
+      isNew: body.isNew !== undefined ? Boolean(body.isNew) : current.isNew,
+      isBestseller:
+        body.isBestseller !== undefined ? Boolean(body.isBestseller) : current.isBestseller,
+    });
 
-  store.products[index] = updated;
-  await saveStore(store);
-  return NextResponse.json(updated);
+    if (updated.media.length === 0) {
+      return jsonError('At least one image or video is required');
+    }
+
+    store.products[index] = updated;
+    await saveStore(store);
+    return NextResponse.json(updated);
+  } catch (error) {
+    return jsonError(error instanceof Error ? error.message : 'Invalid product media', 400);
+  }
 }
 
 export async function DELETE(_req: NextRequest, { params }: Params) {

@@ -2,13 +2,14 @@
 
 import { useState } from 'react';
 import type { Category, Product } from '@/lib/types';
+import { legacyMediaFromProduct, normalizeProduct } from '@/lib/product-media';
 import {
   adminButtonPrimary,
   adminButtonSecondary,
   adminInputClass,
   adminLabelClass,
 } from './AdminHeader';
-import MediaUpload from './MediaUpload';
+import ProductMediaEditor from './ProductMediaEditor';
 
 type Props = {
   categories: Category[];
@@ -32,8 +33,10 @@ export default function ProductForm({
   const [originalPrice, setOriginalPrice] = useState(
     initial?.originalPrice?.toString() ?? ''
   );
-  const [image, setImage] = useState(initial?.image ?? '');
-  const [hoverImage, setHoverImage] = useState(initial?.hoverImage ?? '');
+  const [media, setMedia] = useState(() => {
+    const existing = initial ? legacyMediaFromProduct(initial) : [];
+    return existing.length > 0 ? existing : [{ url: '', type: 'image' as const }];
+  });
   const [description, setDescription] = useState(initial?.description ?? '');
   const [isNew, setIsNew] = useState(initial?.isNew ?? false);
   const [isBestseller, setIsBestseller] = useState(initial?.isBestseller ?? false);
@@ -52,19 +55,42 @@ export default function ProductForm({
       return;
     }
 
+    const validMedia = media.filter((item) => item.url.trim());
+    if (validMedia.length === 0) {
+      setError('Add at least one image or video');
+      setSaving(false);
+      return;
+    }
+
     try {
-      await onSubmit({
-        id: initial?.id,
+      const product = normalizeProduct({
+        id: initial?.id ?? '',
         name,
         category,
         material,
         price: parsedPrice,
         originalPrice: originalPrice ? parseFloat(originalPrice) : null,
-        image,
-        hoverImage: hoverImage || image,
+        media: validMedia,
+        image: '',
+        hoverImage: '',
         description,
         isNew,
         isBestseller,
+      });
+
+      await onSubmit({
+        id: initial?.id,
+        name: product.name,
+        category: product.category,
+        material: product.material,
+        price: product.price,
+        originalPrice: product.originalPrice,
+        media: product.media,
+        image: product.image,
+        hoverImage: product.hoverImage,
+        description: product.description,
+        isNew: product.isNew,
+        isBestseller: product.isBestseller,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save');
@@ -111,25 +137,7 @@ export default function ProductForm({
           <input className={adminInputClass} type="number" min="0" step="1" value={originalPrice} onChange={(e) => setOriginalPrice(e.target.value)} placeholder="For sale items" />
         </div>
 
-        <MediaUpload
-          label="Primary Image *"
-          value={image}
-          onChange={setImage}
-          folder="products"
-          accept="image/jpeg,image/png,image/webp,image/gif"
-          required
-          hint="JPG, PNG, or WebP up to 50MB"
-        />
-
-        <MediaUpload
-          label="Hover Image"
-          value={hoverImage}
-          onChange={setHoverImage}
-          folder="products"
-          accept="image/jpeg,image/png,image/webp,image/gif"
-          placeholder="Defaults to primary image"
-          hint="Optional second product photo"
-        />
+        <ProductMediaEditor items={media} onChange={setMedia} />
       </div>
 
       <div>

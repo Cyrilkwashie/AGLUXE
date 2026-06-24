@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Heart } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { formatPrice } from '@/lib/format';
+import { getCardMedia, isVideoMedia } from '@/lib/product-media';
 import type { Product } from '@/lib/types';
 
 type Props = {
@@ -13,6 +14,7 @@ type Props = {
 
 export function ProductCard({ product }: Props) {
   const { addItem } = useCart();
+  const { primary, hover } = getCardMedia(product);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -24,20 +26,44 @@ export function ProductCard({ product }: Props) {
     <Link href={`/shop/${product.id}`} className="group block">
       <article>
         <div className="relative aspect-[3/4] overflow-hidden bg-ag-cream mb-4">
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-          />
-          <Image
-            src={product.hoverImage}
-            alt={`${product.name} alternate view`}
-            fill
-            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-          />
+          {isVideoMedia(primary) ? (
+            <video
+              src={primary.url}
+              muted
+              loop
+              playsInline
+              autoPlay
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          ) : (
+            <Image
+              src={primary.url}
+              alt={product.name}
+              fill
+              sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+          )}
+
+          {hover && hover.url !== primary.url && !isVideoMedia(hover) && (
+            <Image
+              src={hover.url}
+              alt={`${product.name} alternate view`}
+              fill
+              sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              className="object-cover absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            />
+          )}
+
+          {hover && isVideoMedia(hover) && hover.url !== primary.url && (
+            <video
+              src={hover.url}
+              muted
+              loop
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            />
+          )}
 
           {product.isNew && (
             <span className="absolute top-4 left-4 bg-ag-gold text-white text-[10px] tracking-[0.3em] uppercase px-3 py-1.5 font-sans">

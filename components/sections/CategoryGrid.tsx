@@ -70,13 +70,17 @@ function CategoryCard({
 export default function CategoryGrid() {
   const { categories, loading } = useCatalog();
 
-  const ordered = ['rings', 'earrings', 'necklaces', 'bracelets']
+  const preferredOrder = ['rings', 'earrings', 'necklaces', 'bracelets'];
+  const preferred = preferredOrder
     .map((slug) => categories.find((c) => c.slug === slug))
     .filter(Boolean) as CategoryWithCount[];
-
-  const display = ordered.length > 0 ? ordered : categories;
+  const additional = categories.filter(
+    (c) => !preferredOrder.includes(c.slug),
+  ) as CategoryWithCount[];
+  const display: CategoryWithCount[] = [...preferred, ...additional];
 
   if (loading) return null;
+  if (display.length === 0) return null;
 
   return (
     <section id="categories" className="py-24 md:py-36 lg:py-48 bg-ag-white">
@@ -87,7 +91,7 @@ export default function CategoryGrid() {
           subtitle="Discover our curated collections, each piece designed with intention."
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-4 md:gap-6 min-h-[600px] md:min-h-[700px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:auto-rows-[minmax(300px,auto)]">
           {display.map((category, i) => (
             <CategoryCard key={category.id} category={category} index={i} />
           ))}
